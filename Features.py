@@ -11,6 +11,7 @@ class Features:
         self.adj_count = 0
         self.verb_count = 0
         self.adv_count = 0
+        self.fw_count = 0
 
         #form counts
         self.essay_length = 0
@@ -20,9 +21,9 @@ class Features:
         self.avg_sentence_len = 0
 
         #language model counts
-        self.unigram_count = 0
-        self.bigram_count = 0
-        self.trigram_count = 0
+        self.unigrams_count = 0
+        self.bigrams_count = 0
+        self.trigrams_count = 0
 
         self.initialize_features(essay)
 
@@ -65,6 +66,8 @@ class Features:
                 self.adv_count += 1
             elif tag[1].startswith("VB"):
                 self.adv_count += 1
+            elif tag[1].startswith("FW"):
+                self.fw_count += 1
 
     def lexical_diversity(self,sentence):
         sents = " ".join(nltk.word_tokenize(sentence))
@@ -73,24 +76,11 @@ class Features:
         bigrams = [ grams for grams in ngrams(sents.split(), 2)]
         trigram = [ grams for grams in ngrams(sents.split(), 3)]
 
-        #print trigram
-
-        self.unigrams_count = len([(item, unigrams.count(item)) for item in sorted(set(unigrams))])
+        self.unigrams_count = len([(item[0], unigrams.count(item)) for item in sorted(set(unigrams))])
         self.bigrams_count = len([(item, bigrams.count(item)) for item in sorted(set(bigrams))])
-        self.trigram_count = len([(item, trigram.count(item)) for item in sorted(set(trigram))])
+        self.trigrams_count = len([(item, trigram.count(item)) for item in sorted(set(trigram))])
 
     def initialize_features(self, essay):
         self.tokenize_sentences(essay)
         self.word_counts(essay)
         #self.lexical_diversity(essay)
-
-
-if __name__ == "__main__":
-    f = Features("This is me. This is my life.  Woah, woah woahooooaaa.")
-    print f.sentence_count
-    print f.essay_length
-    print f.long_word
-    print f.avg_sentence_len
-    print f.unigrams_count
-    print f.bigrams_count
-    print f.trigram_count
