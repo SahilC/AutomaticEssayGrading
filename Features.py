@@ -31,12 +31,16 @@ class Features:
         sents = sent_detector.tokenize(essay.strip())
         self.sentence_count = len(sents)
 
+        # for i in sents:
+        #     self.lexical_diversity(i.lower())
+        self.lexical_diversity(essay.lower())
+
     def word_counts(self,essay):
-        words = nltk.word_tokenize(essay.strip())
-        self.essay_length = len(words)
+        word = nltk.word_tokenize(essay.strip())
+        self.essay_length = len(word)
 
         corpus_words = words.words()
-        for i in words:
+        for i in word:
             if i not in corpus_words:
                 self.spelling_errors += 1
             if len(i) >= 7:
@@ -48,7 +52,7 @@ class Features:
         else:
             self.avg_sentence_len = 0
 
-        self.pos_counts(self,words)
+        self.pos_counts(word)
 
     def pos_counts(self,tokens):
         tags = nltk.pos_tag(tokens)
@@ -62,13 +66,23 @@ class Features:
             elif tag[1].startswith("VB"):
                 self.adv_count += 1
 
-    def lexical_diversity(self,essay):
-        pass
+    def lexical_diversity(self,sentence):
+        sents = " ".join(nltk.word_tokenize(sentence))
+
+        unigrams = [ grams for grams in ngrams(sents.split(), 1)]
+        bigrams = [ grams for grams in ngrams(sents.split(), 2)]
+        trigram = [ grams for grams in ngrams(sents.split(), 3)]
+
+        #print trigram
+
+        self.unigrams_count = len([(item, unigrams.count(item)) for item in sorted(set(unigrams))])
+        self.bigrams_count = len([(item, bigrams.count(item)) for item in sorted(set(bigrams))])
+        self.trigram_count = len([(item, trigram.count(item)) for item in sorted(set(trigram))])
 
     def initialize_features(self, essay):
         self.tokenize_sentences(essay)
         self.word_counts(essay)
-        self.lexical_diversity(essay)
+        #self.lexical_diversity(essay)
 
 
 if __name__ == "__main__":
@@ -77,3 +91,6 @@ if __name__ == "__main__":
     print f.essay_length
     print f.long_word
     print f.avg_sentence_len
+    print f.unigrams_count
+    print f.bigrams_count
+    print f.trigram_count
