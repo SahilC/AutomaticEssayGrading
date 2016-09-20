@@ -61,6 +61,7 @@ class Features:
         self.pos_counts(word)
 
     def pos_counts(self,tokens):
+        print tokens
         tags = nltk.pos_tag(tokens)
         for tag in tags:
             if tag[1].startswith("NN"):
@@ -77,7 +78,7 @@ class Features:
     def lexical_diversity(self,sentence):
         sents = " ".join(nltk.word_tokenize(sentence))
 
-        unigrams = set([ grams for grams in ngrams(sents.split(), 1)])
+        unigrams = [ grams for grams in ngrams(sents.split(), 1)]
         bigrams = [ grams for grams in ngrams(sents.split(), 2)]
         trigram = [ grams for grams in ngrams(sents.split(), 3)]
 
