@@ -1,9 +1,10 @@
-from nltk.corpus import words
+#from nltk.corpus import words
 from nltk import ngrams
 import nltk
 
 class Features:
     def __init__(self,essay):
+# To Do: Incorporate Google snippets match       
         self.google_snippets_match = 0
 
         #POS counts
@@ -40,10 +41,11 @@ class Features:
         word = nltk.word_tokenize(essay.strip())
         self.essay_length = len(word)
 
-        corpus_words = words.words()
+# To Do: Figure out how to perform spell check
+#        corpus_words = words.words()
         for i in word:
-            if i not in corpus_words:
-                self.spelling_errors += 1
+#            if i not in corpus_words:
+#                self.spelling_errors += 1
             if len(i) >= 7:
                 self.long_word += 1
 
