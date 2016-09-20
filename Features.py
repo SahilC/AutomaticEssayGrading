@@ -61,7 +61,6 @@ class Features:
         self.pos_counts(word)
 
     def pos_counts(self,tokens):
-        print tokens
         tags = nltk.pos_tag(tokens)
         for tag in tags:
             if tag[1].startswith("NN"):

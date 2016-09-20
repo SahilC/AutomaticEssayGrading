@@ -5,14 +5,14 @@ from Essay import Essay
 import codecs
 #from Features import Features
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     feature_vector = []
     scores = []
     vector = []
 
     # To Do: Change file name
     training_data = 'dataset/training_set_rel3.tsv'
-    with codecs.open(training_data,encoding="utf-8") as tsvfile:
+    with codecs.open(training_data,encoding='utf-8',errors='ignore') as tsvfile:
         tsvfile = csv.reader(tsvfile, delimiter = '\t')
         line = 0
         for row in tsvfile:
