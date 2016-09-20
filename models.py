@@ -11,7 +11,7 @@ if __name__ == "__main__":
     
     # To Do: Change file name
     training_data = 'test.txt'
-    with open(training_filename) as tsvfile:
+    with open(training_data) as tsvfile:
         tsvfile = csv.reader(tsvfile, delimiter = '\t')
         line = 0
         for row in tsvfile:
@@ -29,3 +29,4 @@ if __name__ == "__main__":
             
     clf = svm.SVR()
     clf.fit(feature_vector, scores)
+
