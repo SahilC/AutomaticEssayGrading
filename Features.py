@@ -1,10 +1,13 @@
 #from nltk.corpus import words
 from nltk import ngrams
 import nltk
+import enchant
+
+d = enchant.Dict("en_US")
 
 class Features:
     def __init__(self,essay):
-# To Do: Incorporate Google snippets match       
+# To Do: Incorporate Google snippets match
         self.google_snippets_match = 0
 
         #POS counts
@@ -44,8 +47,8 @@ class Features:
 # To Do: Figure out how to perform spell check
 #        corpus_words = words.words()
         for i in word:
-#            if i not in corpus_words:
-#                self.spelling_errors += 1
+            if not d.check(i):
+                self.spelling_errors += 1
             if len(i) >= 7:
                 self.long_word += 1
 
@@ -74,7 +77,7 @@ class Features:
     def lexical_diversity(self,sentence):
         sents = " ".join(nltk.word_tokenize(sentence))
 
-        unigrams = [ grams for grams in ngrams(sents.split(), 1)]
+        unigrams = set([ grams for grams in ngrams(sents.split(), 1)])
         bigrams = [ grams for grams in ngrams(sents.split(), 2)]
         trigram = [ grams for grams in ngrams(sents.split(), 3)]
 
