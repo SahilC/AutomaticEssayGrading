@@ -2,13 +2,18 @@
 from nltk import ngrams
 import nltk
 import enchant
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 d = enchant.Dict("en_US")
 
 class Features:
     def __init__(self,essay):
-# To Do: Incorporate Google snippets match
+        # To Do: Incorporate Google snippets match
         self.google_snippets_match = 0
+        self.neg_sentiment = 0
+        self.pos_sentiment = 0
+        self.neu_sentiment = 0
+        self.compound_sentiment = 0
 
         #POS counts
         self.noun_count = 0
@@ -31,12 +36,26 @@ class Features:
 
         self.initialize_features(essay)
 
+    def sentiment_tagger(self,sid,sentence):
+        ss = sid.polarity_scores(sentence)
+        for k in sorted(ss):
+            if k == 'compound':
+                self.compound_sentiment += ss[k]
+            elif k == 'neg':
+                self.neg_sentiment += ss[k]
+            elif k == 'neu':
+                self.neu_sentiment += ss[k]
+            elif k == 'pos':
+                self.pos_sentiment += ss[k]
+
     def tokenize_sentences(self, essay):
         sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
         sents = sent_detector.tokenize(essay.strip())
         self.sentence_count = len(sents)
 
-        # for i in sents:
+        sid = SentimentIntensityAnalyzer()
+        for i in sents:
+            self.sentiment_tagger(sid,i)
         #     self.lexical_diversity(i.lower())
         self.lexical_diversity(essay.lower())
 
@@ -44,8 +63,7 @@ class Features:
         word = nltk.word_tokenize(essay.strip())
         self.essay_length = len(word)
 
-# To Do: Figure out how to perform spell check
-#        corpus_words = words.words()
+        #        corpus_words = words.words()
         for i in word:
             if not d.check(i):
                 self.spelling_errors += 1
