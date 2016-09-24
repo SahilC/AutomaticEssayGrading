@@ -9,7 +9,7 @@ d = enchant.Dict("en_US")
 class Features:
     def __init__(self,essay):
         # To Do: Incorporate Google snippets match
-        self.google_snippets_match = 0
+#        self.google_snippets_match = 0
         self.neg_sentiment = 0
         self.pos_sentiment = 0
         self.neu_sentiment = 0
@@ -65,6 +65,11 @@ class Features:
 
         #        corpus_words = words.words()
         for i in word:
+            try:
+                if not d.check(i.encode('utf8')):
+                    self.spelling_errors += 1
+            except:
+                self.spelling_errors += 1
             if not d.check(i):
                 self.spelling_errors += 1
             if len(i) >= 7:
@@ -88,7 +93,7 @@ class Features:
             elif tag[1].startswith("RB"):
                 self.adv_count += 1
             elif tag[1].startswith("VB"):
-                self.adv_count += 1
+                self.verb_count += 1
             elif tag[1].startswith("FW"):
                 self.fw_count += 1
 
