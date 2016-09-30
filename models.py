@@ -1,9 +1,13 @@
-from sklearn import svm
 import unicodecsv
 import numpy as np
 import codecs
+import time
 import util
 
+from sklearn import svm
+from sklearn.grid_search import GridSearchCV
+from sklearn.feature_selection import RFECV
+from sklearn.cross_validation import StratifiedKFold
 from Essay import Essay
 from Kappa import get_average_kappa
 
@@ -14,7 +18,7 @@ def train_svr(training_data):
     fo = codecs.open(training_data, encoding='utf-8')
     lines = fo.readlines()
     fo.close()
-    
+
     line = 0
     for each_line in lines:
         row = each_line.split('\n')[0].split('\t')
@@ -32,11 +36,15 @@ def train_svr(training_data):
         scores.append(e.score)
         feature_vector.append(vector)
         line += 1
-    clf = svm.SVR()
-    clf.fit(np.array(feature_vector), np.array(scores))
-    return clf
 
-# Predicts scores for given data and returns the average quadratic kappa  
+    clf = svm.SVR(kernel="linear")
+    print('STARTING........')
+    rfecv = RFECV(estimator=clf, step=1, cv=2,scoring='mean_squared_error')
+    rfecv.fit(np.array(feature_vector), np.array(scores))
+    # clf.fit(np.array(feature_vector), np.array(scores))
+    return rfecv
+
+# Predicts scores for given data and returns the average quadratic kappa
 def predict_svr(clf, data):
     feature_vector = []
     scores = []
@@ -44,7 +52,7 @@ def predict_svr(clf, data):
     fo = codecs.open(data, encoding='utf-8')
     lines = fo.readlines()
     fo.close()
-    
+
     line = 0
     for each_line in lines:
         row = each_line.split('\n')[0].split('\t')
@@ -62,7 +70,7 @@ def predict_svr(clf, data):
         scores.append(e.score)
         feature_vector.append(vector)
         line += 1
-                    
+
     predictions = clf.predict(np.array(feature_vector))
     return get_average_kappa(np.array(scores), np.array(predictions))
 
@@ -70,13 +78,20 @@ if __name__ == '__main__':
     training_data = 'dataset/small_training_set.tsv'
     test_data = 'dataset/small_test_set.tsv'
     classifier_dump = 'dumps/classifier_dump'
-    
+
     print('\n----------------Training started----------------\n')
+    start_time = time.time()
     svr_classifier = train_svr(training_data)
+    print("--- %s seconds ---" % (time.time() - start_time))
+    print("Optimal number of features : %d" % svr_classifier.n_features_)
+    print("Mask of features :")
+    print(svr_classifier.support_)
+    print("Ranking of features :")
+    print(svr_classifier.ranking_)
     print('\n----------------Training completed----------------\n')
-    
+
     util.dump_classifier(svr_classifier, classifier_dump)
-    
+
     print('\n----------------Testing started----------------\n')
     avg_kappa = predict_svr(svr_classifier, test_data)
     print('\n----------------Testing completed----------------\n')
