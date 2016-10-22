@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Sep 30 13:30:23 2016
-
-@author: Pranav
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Sep 19 18:27:04 2016
+Created on Sat Oct 22 23:06:36 2016
 
 @author: Pranav
 """
@@ -19,7 +12,7 @@ from RandomForest import RandomForest
 
 def train_random_forest(training_data_dump):
     training_data = util.load_object(training_data_dump)
-    model = RandomForest(training_data, 50, stats.median, 50)
+    model = RandomForest(training_data, 10, stats.median, 30)
     return model
 
 def predict_random_forest(model, test_data_dump):
@@ -32,10 +25,10 @@ def predict_random_forest(model, test_data_dump):
     return get_average_kappa(targets, predictions)
 
 if __name__ == '__main__':
-    training_data_dump = 'test/dumps/training_data_dump'
-    test_data_dump = 'test/dumps/test_data_dump'
+    glove_training_data_dump = 'test/dumps/glove_training_data_dump'
+    glove_test_data_dump = 'test/dumps/glove_test_data_dump'
     
     print('--------------------random forest--------------------')
-    model = train_random_forest(training_data_dump)
-    avg_kappa = predict_random_forest(model, test_data_dump)
+    model = train_random_forest(glove_training_data_dump)
+    avg_kappa = predict_random_forest(model, glove_test_data_dump)
     print('Average quadratic kappa : ' + str(avg_kappa))
