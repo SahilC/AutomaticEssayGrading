@@ -11,12 +11,12 @@ import pickle
 def dump_classifier(classifier, dump_file):
     if not os.path.exists(dump_file):
         os.makedirs(os.path.dirname(dump_file))       
-    f = open(dump_file, mode='a');    
+    f = open(dump_file, mode='w');    
     pickle.dump(classifier, f)
     f.close();
     
 def load_classifier(load_file):
-    f = open(load_file, mode='a');    
+    f = open(load_file, mode='r');    
     classifier = pickle.load(f)
     f.close();
     return classifier
