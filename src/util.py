@@ -12,6 +12,7 @@ import enchant
 from Essay import Essay
 import numpy as np
 from pymongo import MongoClient
+from progressbar import ProgressBar
 
 def dump_object(obj, dump_file):
     if not os.path.exists(os.path.dirname(dump_file)):
@@ -31,7 +32,8 @@ def get_data(data_file):
     fo = codecs.open(data_file, encoding='utf-8')
     lines = fo.readlines()
     fo.close()
-    
+    total = 1.0*len(lines)
+    bar = ProgressBar().start()
     line = 0
     for each_line in lines:
         row = each_line.split('\n')[0].split('\t')
@@ -40,8 +42,8 @@ def get_data(data_file):
         if line < 1:
             line += 1
             continue
-        if line % 50 == 0:
-            print('Sample: '+str(line))
+#        if line % 50 == 0:
+#            print('Sample: '+str(line))
             
         e = Essay(row, store_score = True)
         f = e.features
@@ -50,6 +52,8 @@ def get_data(data_file):
         vector.append(e.score)
         feature_vector.append(np.array(vector))
         line += 1
+        bar.update(100*line/total)
+    bar.finish()
     return np.array(feature_vector)
 
 def get_score(essay_set, row):
@@ -94,19 +98,23 @@ def get_glove_data(data_file):
     fo = codecs.open(data_file, encoding='utf-8')
     lines = fo.readlines()
     fo.close()
+    total = len(lines)*1.0
     line = 0
+    bar = ProgressBar().start()
     for each_line in lines:
         line += 1
         if line == 1:
             continue
-        if line % 50 == 0:
-            print "Line - "+str(line)
+#        if line % 50 == 0:
+#            print "Line - "+str(line)
         row = each_line.split('\n')[0].split('\t')
         essay_set = int(row[1])
         scores.append(get_score(essay_set,row))
         vector = build_essay_model(glove,each_line)
         vector = np.append(vector, get_score(essay_set,row))        
         feature_vector.append(vector)
+        bar.update(100*line/total)
+    bar.finish()
     return np.array(feature_vector)
 
 
