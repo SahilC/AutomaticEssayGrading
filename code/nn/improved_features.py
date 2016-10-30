@@ -3,6 +3,7 @@ import numpy as np
 import codecs
 import time
 import enchant
+from Essay import Essay
 from pymongo import MongoClient
 from Kappa import get_average_kappa
 
@@ -95,7 +96,7 @@ if __name__ == '__main__':
     scores = []
     valid_feature_vector = []
     valid_scores = []
-    fo = codecs.open('../dataset/small_training_set.tsv', encoding='utf-8')
+    fo = codecs.open('../../dataset/small_training_set.tsv', encoding='utf-8')
     lines = fo.readlines()
     fo.close()
     line = 0
@@ -108,15 +109,29 @@ if __name__ == '__main__':
                 print "TRAINED"+str(line)
             row = each_line.split('\n')[0].split('\t')
             essay_set = int(row[1])
-            scores.append([get_score(essay_set,row)])
-            feature_vector.append(build_essay_model(glove,each_line))
+            #scores.append([get_score(essay_set,row)])
+            #feature_vector.append(build_essay_model(glove,each_line))
+            vector = []
+            e = Essay(row, store_score = True)
+            f = e.features
+            for i in sorted(f.__dict__.keys()):
+                vector.append(f.__dict__[i])
+            scores.append([e.score])
+            feature_vector.append(vector)
         else:
             if line % 50 == 0:
                 print "Validation"+str(line)
             row = each_line.split('\n')[0].split('\t')
             essay_set = int(row[1])
-            valid_scores.append([get_score(essay_set,row)])
-            valid_feature_vector.append(build_essay_model(glove,each_line))
+            #valid_scores.append([get_score(essay_set,row)])
+            #valid_feature_vector.append(build_essay_model(glove,each_line))
+            vector = []
+            e = Essay(row, store_score = True)
+            f = e.features
+            for i in sorted(f.__dict__.keys()):
+                vector.append(f.__dict__[i])
+            valid_scores.append([e.score])
+            valid_feature_vector.append(vector)
 
     feature_vector = np.array(feature_vector)
     scores = np.array(scores)
@@ -126,7 +141,7 @@ if __name__ == '__main__':
 
     test_feature_vector = []
     test_scores = []
-    fo = codecs.open('../dataset/small_test_set.tsv', encoding='utf-8')
+    fo = codecs.open('../../dataset/small_test_set.tsv', encoding='utf-8')
     lines = fo.readlines()
     fo.close()
     line = 0
@@ -140,8 +155,15 @@ if __name__ == '__main__':
             break
         row = each_line.split('\n')[0].split('\t')
         essay_set = int(row[1])
-        test_scores.append([get_score(essay_set,row)])
-        test_feature_vector.append(build_essay_model(glove,each_line))
+        #test_scores.append([get_score(essay_set,row)])
+        #test_feature_vector.append(build_essay_model(glove,each_line))
+        vector = []
+        e = Essay(row, store_score = True)
+        f = e.features
+        for i in sorted(f.__dict__.keys()):
+            vector.append(f.__dict__[i])
+        test_scores.append([e.score])
+        test_feature_vector.append(vector)
 
     test_feature_vector = np.array(test_feature_vector)
     test_scores = np.array(test_scores)
@@ -155,7 +177,7 @@ if __name__ == '__main__':
     # validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(test_feature_vector,test_scores,every_n_steps=50)
 
     #cell = tf.nn.rnn_cell.BasicRNNCell(num_units=feature_vector.shape[1])
-    cell = tf.nn.rnn_cell.MultiRNNCell([tf.nn.rnn_cell.BasicLSTMCell(300, state_is_tuple=True) for steps in range(5)], state_is_tuple=True)
+    cell = tf.nn.rnn_cell.MultiRNNCell([tf.nn.rnn_cell.BasicLSTMCell(9, state_is_tuple=True) for steps in range(1)], state_is_tuple=True)
 
     outputs, states = tf.nn.rnn(cell, [x_], dtype=tf.float32)
     outputs = outputs[-1]
@@ -185,8 +207,8 @@ if __name__ == '__main__':
                 elif len(costs) > 3 and is_increasing(costs[-3:]):
                     count+=1
                     print count
-                else:
-                    count = 0
+                # else:
+                #     count = 0
             i += 1
         response = sess.run(y, feed_dict={x_:test_feature_vector})
         print get_average_kappa(response,test_scores)
